@@ -60,11 +60,4 @@ func main() {
 		outputfile.Sync()
 		outputfile.Close()
 	}
-	// for len(used) < sampleSize {
-	// 	n := rand.Intn(len(data))
-	// 	if _, ok := used[n]; !ok {
-	// 		w.Write(data[n])
-	// 		used[n] = true
-	// 	}
-	// }
 }
