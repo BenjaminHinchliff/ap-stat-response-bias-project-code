@@ -35,8 +35,8 @@ func srs(source [][]string, used map[int]bool, n int) [][]string {
 
 func main() {
 	const sampleSize int = 500
-	const dataPath string = "data/2020-21-student-directory.csv"
-	const outputPath string = "data/treatments"
+	const dataPath string = "../../data/2020-21-student-directory.csv"
+	const outputPath string = "../../data/treatments"
 	treatments := []string{"control", "experimental"}
 	treatmentSize := sampleSize / len(treatments)
 
