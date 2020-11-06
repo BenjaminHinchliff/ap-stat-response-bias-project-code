@@ -2,13 +2,16 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/mail"
 	"os"
+	"path/filepath"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -83,9 +86,12 @@ func sendMessage(srv *gmail.Service, sender mail.Address, receiver mail.Address,
 		Raw: base64.RawURLEncoding.EncodeToString([]byte(msg)),
 	}
 
-	_, err := srv.Users.Messages.Send("me", &gmsg).Do()
-	return err
+	fmt.Println("Sent Message:\n", gmsg)
+	// _, err := srv.Users.Messages.Send("me", &gmsg).Do()
+	return nil
 }
+
+const sourceDir string = "../../data/treatments/"
 
 func main() {
 	// next time I'm using SMTP.
@@ -106,10 +112,38 @@ func main() {
 	}
 
 	from := mail.Address{Name: "Benjamin Hinchliff", Address: "benjamin.hinchliff21@auhsdschools.org"}
-	to := mail.Address{Name: "Benjamin Hinchliff", Address: "benjamin.hinchliff@gmail.com"}
 
-	err = sendMessage(srv, from, to, "test2", "hey other ben this is more testing")
+	treatments, err := ioutil.ReadDir(sourceDir)
 	if err != nil {
-		log.Fatalln("Failed to send email: ", err)
+		log.Fatalf("Failed to open treatments dir: %v", err)
+	}
+
+	for _, file := range treatments {
+		if filepath.Ext(file.Name()) == ".csv" {
+			path := sourceDir + file.Name()
+			f, err := os.Open(path)
+			if err != nil {
+				log.Fatalf("failed to open a treatment csv file %v\n", err)
+			}
+			r := csv.NewReader(f)
+			for {
+				record, err := r.Read()
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					log.Fatalf("failed to read a row from csv: %v\n", err)
+				}
+				to := mail.Address{
+					Name:    record[1] + " " + record[0],
+					Address: record[3],
+				}
+
+				sendMessage(srv, from, to, "test2", "hey other ben this is more testing")
+				if err != nil {
+					log.Fatalln("Failed to send email: ", err)
+				}
+			}
+		}
 	}
 }
