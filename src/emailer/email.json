@@ -1,4 +1,8 @@
 {
-    "name": "🐟5 Second Survey About Fish🐟",
-    "body": "Hello %s %s,\n\nCould you please take a few seconds of your time to complete a survey about raw fish? (It's for AP Stat)\n%s\n\nThanks,\nBenjamin H."
+    "subject": "5 Second Survey About Fish",
+    "body": "Hello %s,\n\nCould you please take a few seconds of your time to complete a survey about raw fish🐟? (It's for AP Stat)\n%s\n\nThanks,\nBenjamin H.",
+    "links": [
+        "https://forms.gle/HAXUQacudrxHHt1WA",
+        "https://forms.gle/kMj8a1jDAbGGbcSv8"
+    ]
 }

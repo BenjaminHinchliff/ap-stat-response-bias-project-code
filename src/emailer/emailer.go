@@ -86,12 +86,19 @@ func sendMessage(srv *gmail.Service, sender mail.Address, receiver mail.Address,
 		Raw: base64.RawURLEncoding.EncodeToString([]byte(msg)),
 	}
 
-	fmt.Println("Sent Message:\n", gmsg)
-	// _, err := srv.Users.Messages.Send("me", &gmsg).Do()
-	return nil
+	fmt.Printf("Sent Message: %s\n", receiver.String())
+	_, err := srv.Users.Messages.Send("me", &gmsg).Do()
+	return err
 }
 
 const sourceDir string = "../../data/treatments/"
+
+// Email struct for the json format of the email data
+type Email struct {
+	Subject string   `json:"subject"`
+	Body    string   `json:"body"`
+	Links   []string `json:"links"`
+}
 
 func main() {
 	// next time I'm using SMTP.
@@ -111,6 +118,21 @@ func main() {
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 
+	// load email
+	emailFile, err := os.Open("email.json")
+	if err != nil {
+		log.Printf("unable to open email content %v", emailFile)
+	}
+
+	emailBytes, _ := ioutil.ReadAll(emailFile)
+
+	var email Email
+	json.Unmarshal([]byte(emailBytes), &email)
+
+	fmt.Println(email)
+
+	emailFile.Close()
+
 	from := mail.Address{Name: "Benjamin Hinchliff", Address: "benjamin.hinchliff21@auhsdschools.org"}
 
 	treatments, err := ioutil.ReadDir(sourceDir)
@@ -118,6 +140,7 @@ func main() {
 		log.Fatalf("Failed to open treatments dir: %v", err)
 	}
 
+	i := 0
 	for _, file := range treatments {
 		if filepath.Ext(file.Name()) == ".csv" {
 			path := sourceDir + file.Name()
@@ -134,16 +157,19 @@ func main() {
 				if err != nil {
 					log.Fatalf("failed to read a row from csv: %v\n", err)
 				}
+				name := record[1] + " " + record[0]
 				to := mail.Address{
-					Name:    record[1] + " " + record[0],
+					Name:    name,
 					Address: record[3],
 				}
 
-				sendMessage(srv, from, to, "test2", "hey other ben this is more testing")
+				sendMessage(srv, from, to, email.Subject, fmt.Sprintf(email.Body, name, email.Links[i]))
 				if err != nil {
 					log.Fatalln("Failed to send email: ", err)
 				}
 			}
+			f.Close()
+			i++
 		}
 	}
 }
