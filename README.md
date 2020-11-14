@@ -4,7 +4,7 @@ I decided to have some fun and write a bunch of code to do all my work for me an
 
 details on what each module does in the module's README.md file.
 
-Two things:
+A Few things:
 - I tried on code quality, but Go is weird and I'm inexperienced with it so no guarantees.
 - I'm just using Rust next time.
 - All output files have been removed for privacy reasons
